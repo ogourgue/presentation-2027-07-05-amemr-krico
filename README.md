@@ -14,7 +14,7 @@ Related repositories:
 
 ## Reproducing the figure
 
-Each figure has its own folder, with `aggregate.py`, `plot.py`, the aggregated data in `data/` and the rendered figure. Once the aggregated data are committed, redrawing a figure needs only:
+Each figure has its own folder, with `aggregate.py`, `plot.py`, the aggregated data in `data/` and the rendered figure. The aggregated data are committed, so redrawing a figure needs only:
 
 ```bash
 cd <folder>
@@ -23,13 +23,11 @@ python plot.py
 
 `shared/` holds files used by several figures.
 
-`FA_recruit_map/data/aggregated.nc` and the rendered figure are not committed yet: they are built from version 3.0.0 of the dataset (see below).
-
 ## Re-running the aggregation
 
 `aggregate.py` rebuilds `data/aggregated.nc` from the data upstream. Each folder README lists what its script reads.
 
-FA reads the per-particle recruitment outcomes of **version 3.0.0** of the KRICO Recruitment Outcomes Dataset (1994–2025), the set classified with GLORYS12 sea ice. That version is produced by [krico-post-production](https://github.com/ogourgue/krico-post-production) at tag `v3.0.0-rc1` and is not on Zenodo yet. Earlier versions number the outcomes differently, so the script checks every file: a version 3.0.0 file has the global attributes `dataset_version` (`3.0.0`) and `sic_source` (`GLORYS12`). The script stops at the first file that does not match.
+FA reads the per-particle recruitment outcomes of **version 3.0.0** of the KRICO Recruitment Outcomes Dataset (1994-2025), the set classified with GLORYS12 sea ice. That version is produced by [krico-post-production](https://github.com/ogourgue/krico-post-production) at tag `v3.0.0-rc1` and is not on Zenodo yet. Earlier versions number the outcomes differently, so the script checks every file: a version 3.0.0 file has the global attributes `dataset_version` (`3.0.0`) and `sic_source` (`GLORYS12`). The script stops at the first file that does not match.
 
 The folder that holds the cohort files is given on the command line:
 

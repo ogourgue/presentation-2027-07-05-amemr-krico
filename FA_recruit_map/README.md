@@ -11,18 +11,23 @@ Adapted from `F5_destination_maps` in [krico-paper1](https://github.com/ogourgue
 
 ## What it shows
 
-- All 32 spawning years (1994–2025) and all release dates together.
+- All 32 spawning years (1994-2025) and all release dates together.
 - Regions: the CCAMLR subareas of the project, with 48.6 split at 60°S. Their names are ours: 88.3 Bellingshausen Sea, 48.1 Antarctic Peninsula, 48.2 South Orkney Islands, 48.3 South Georgia, 48.4 South Sandwich Islands, 48.5 Weddell Sea, 48.6 north of 60°S Bouvet, 48.6 south of 60°S Dronning Maud Land.
 - Numbers: of the particles released in a region, the share that are recruits of either class, whole percent, or "below 1%". One particle stands for one egg spawned 24 days before its release, at the same place.
 - The two regions below 1% carry the reason given in the abstract.
+- A region name sits inside its region. Where the region is too crowded, the name sits outside and a line leads to a border that the region shares with no other.
 - Colour: the share of all recruits whose position, on the day sea ice advances over them, fell in the cell. Grid: 1° × 1° lon/lat. Colours clipped at the 99th percentile of the non-empty cells. The colour bar carries no numbers, so that every number on the figure is a share of eggs.
+- The colour scale is transparent at its low end and opaque from 40% of the scale upward. Over white it is exactly the "Greens" scale of matplotlib; over the greys, cells with few recruits tint what lies beneath.
 - The second line under the title gives the off-shelf/slope share of the recruits, computed from the data.
-- Dark outline: the slope where particles are released, sea floor between 1000 and 2000 m inside the regions, from 76°S to 41°S.
-- Projection: South Polar Stereographic, central longitude 37.5°W. The map is cropped to 100°W–28°E and 77.5°S–46.5°S; the model domain is wider.
+- Three greys: the shelf (sea floor shallower than 1000 m) and the slope (1000 to 2000 m), both inside the regions and under the colours, and the land, above everything. The slope is outlined again above the colours, so that the relief stays readable where they are opaque.
+- The slope is the assumed spawning zone. Particles are released over all of it except 96 model cells south of 76°S (0.3% of its cells), which are shaded like the rest.
+- South of the bathymetry grid, which ends at 77.0°S, everything that is not land is shaded as shelf.
+- Region borders: only those that run along a meridian or a parallel. The CCAMLR polygons end at the coast of Antarctica, and their full outline would trace that coast.
+- Projection: South Polar Stereographic, central longitude 37.5°W. The map is cropped to 100°W-28°E and 77.5°S-46.5°S; the model domain is wider.
 
 ## Input data
 
-`aggregate.py` reads the per-particle recruitment outcomes of version 3.0.0 of the KRICO Recruitment Outcomes Dataset (1994–2025), the set classified with GLORYS12 sea ice (`data_v3.0_glorys12/`), from the folder given on the command line. It checks every file it reads and stops if one comes from another version or another sea-ice product. The main README says how the version is recognised.
+`aggregate.py` reads the per-particle recruitment outcomes of version 3.0.0 of the KRICO Recruitment Outcomes Dataset (1994-2025), the set classified with GLORYS12 sea ice (`data_v3.0_glorys12/`), from the folder given on the command line. It checks every file it reads and stops if one comes from another version or another sea-ice product. The main README says how the version is recognised.
 
 A particle is assigned to a region by its release position, through a 0.05° lookup raster of the CCAMLR shapefile in `../shared/ccamlr-data/`. This is the rule of the per-subarea aggregates of the paper (`FS1_ice_product/aggregate.py` in [krico-paper2](https://github.com/ogourgue/krico-paper2) @ `3637d65`), and the raster is the same.
 
@@ -32,9 +37,9 @@ A particle is assigned to a region by its release position, through a 0.05° loo
 
 - `aggregate.py` — counts the particles of each outcome, over the domain and per region of release, and bins the recruits of each class on the 1° grid; writes `data/aggregated.nc`.
 - `plot.py` — reads `data/aggregated.nc`, `data/bathymetry.nc` and the CCAMLR shapefile, writes `recruit_map.png`.
-- `data/bathymetry.nc` — bathymetry on the model grid, for the slope outline.
-- `data/aggregated.nc` — recruits per class on the 1° grid, and particle counts per outcome and per region of release. Not committed yet.
-- `recruit_map.png` — the rendered figure. Not committed yet.
+- `data/bathymetry.nc` — bathymetry on the model grid, for the shelf and the slope.
+- `data/aggregated.nc` — recruits per class on the 1° grid, and particle counts per outcome and per region of release.
+- `recruit_map.png` — the rendered figure.
 
 ## Run
 
