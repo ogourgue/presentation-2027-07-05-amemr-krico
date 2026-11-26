@@ -1,6 +1,6 @@
 # FA — Map of the recruits: where they come from, where they meet the ice
 
-Image submitted with the abstract. One map with two readings:
+Image submitted with the abstract: 15 cm by 8 cm in landscape, the largest size the conference accepts, at 300 dpi (1771 by 944 pixels). One map with two readings:
 
 - **Numbers: where the recruits come from.** For each region, the share of the eggs spawned there that give a recruit. These are the numbers quoted in the abstract.
 - **Colour: where the recruits meet the ice.** Where the recruits are on the day sea ice advances over them.
@@ -16,6 +16,7 @@ Adapted from `F5_destination_maps` in [krico-paper1](https://github.com/ogourgue
 - Numbers: of the particles released in a region, the share that are recruits of either class, whole percent, or "below 1%". One particle stands for one egg spawned 24 days before its release, at the same place.
 - The two regions below 1% carry the reason given in the abstract.
 - A region name sits inside its region. Where the region is too crowded, the name sits outside and a line leads to a border that the region shares with no other.
+- The key is a column to the right of the map, centred on its height. No text is smaller than 6.5 points at the printed size.
 - Colour: the share of all recruits whose position, on the day sea ice advances over them, fell in the cell. Grid: 1° × 1° lon/lat. Colours clipped at the 99th percentile of the non-empty cells. The colour bar carries no numbers, so that every number on the figure is a share of eggs.
 - The colour scale is transparent at its low end and opaque from 40% of the scale upward. Over white it is exactly the "Greens" scale of matplotlib; over the greys, cells with few recruits tint what lies beneath.
 - The second line under the title gives the off-shelf/slope share of the recruits, computed from the data.

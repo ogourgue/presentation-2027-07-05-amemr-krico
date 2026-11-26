@@ -2,7 +2,8 @@
 FA plot: where the recruits come from, and where they meet the ice.
 
 Reads data/aggregated.nc, data/bathymetry.nc and the CCAMLR shapefile, and
-produces recruit_map.png: one polar-stereographic map with two readings.
+produces recruit_map.png, 15 cm by 8 cm: one polar-stereographic map with
+two readings, and its key in a column to the right.
 
   - Numbers: where the recruits come from. For each region, the share of
     the eggs spawned there that give a recruit, as quoted in the abstract.
@@ -43,11 +44,30 @@ from shapely.ops import linemerge, unary_union
 # Style
 # ---------------------------------------------------------------------------
 
+# The conference accepts one supporting image of at most 15 cm by 8 cm,
+# in landscape. The figure has exactly that size.
+FIGURE_CM = (15.0, 8.0)
+DPI = 300
+
 mpl.rcParams.update({
     "font.family": "Arial",
-    "font.size": 9,
-    "figure.figsize": (7.0, 4.6),
+    "font.size": 7,
+    "figure.figsize": (FIGURE_CM[0] / 2.54, FIGURE_CM[1] / 2.54),
 })
+
+# Font sizes (points). None is below 6.
+FONT_TITLE = 9.5
+FONT_TEXT = 7.0      # the two lines under the title
+FONT_NAME = 6.5      # region names
+FONT_NUMBER = 8.5    # shares of eggs
+FONT_REASON = 7.0    # "too much ice", "too little ice"
+FONT_KEY = 6.5
+
+# Layout, in fractions of the figure: the map (left, bottom, width,
+# height) and the key column to its right.
+MAP_BOX = (0.012, 0.02, 0.80, 0.745)
+KEY_X = 0.832
+KEY_WIDTH = 0.155
 
 INK = "#222222"       # titles and numbers
 INK_2 = "#555555"     # other text
@@ -106,7 +126,7 @@ OPAQUE_FROM = 0.40
 
 # Width in pixels of the image of the recruits (see draw_recruits); above
 # the width of the map in the figure, so that the cell edges stay sharp.
-IMAGE_WIDTH = 4000
+IMAGE_WIDTH = 3000
 
 # Region labels: subarea, name, reason given in the abstract (or None),
 # (lon, lat) of the label, and (lon, lat) of the point its line leads to.
@@ -117,10 +137,10 @@ IMAGE_WIDTH = 4000
 REGION_LABELS = (
     ("88.3", "Bellingshausen Sea", None, (-99.5, -63.2), None),
     ("48.1", "Antarctic Peninsula", None, (-73.5, -57.3), (-66.0, -60.0)),
-    ("48.2", "South Orkney Islands", None, (-57.5, -56.3), (-50.0, -58.4)),
-    ("48.4", "South\nSandwich\nIslands", None, (-25.0, -52.9), None),
+    ("48.2", "South Orkney\nIslands", None, (-59.2, -56.4), (-50.0, -58.7)),
+    ("48.4", "South Sandwich Islands", None, (-11.0, -44.5), (-22.5, -50.0)),
     ("48.5", "Weddell Sea", "too much ice", (-38.0, -68.3), None),
-    ("48.3", "South Georgia", "too little ice", (-59.0, -50.2), (-50.0, -51.6)),
+    ("48.3", "South Georgia", "too little ice", (-58.5, -49.0), (-50.0, -51.3)),
     ("48.6N", "Bouvet", None, (11.5, -56.3), None),
     ("48.6S", "Dronning Maud Land", None, (14.0, -64.5), None),
 )
@@ -297,22 +317,23 @@ def region_label(ax, name, number, reason, xy_label, xy_point):
     Name, number and reason of a region; with a line to xy_point, a point
     on the border of the region, when the label sits outside it.
     """
-    halo = [withStroke(linewidth=2.0, foreground="white")]
+    halo = [withStroke(linewidth=1.6, foreground="white")]
     lines = [
-        TextArea(name, textprops=dict(fontsize=7.5, color=INK_2,
+        TextArea(name, textprops=dict(fontsize=FONT_NAME, color=INK_2,
                                       path_effects=halo, linespacing=1.1,
                                       multialignment="center")),
-        TextArea(number, textprops=dict(fontsize=10.5, color=INK,
+        TextArea(number, textprops=dict(fontsize=FONT_NUMBER, color=INK,
                                         fontweight="bold", path_effects=halo)),
     ]
     if reason:
         lines.append(TextArea(reason, textprops=dict(
-            fontsize=8.5, color=INK, fontweight="bold", path_effects=halo)))
-    box = VPacker(children=lines, align="center", pad=0, sep=1.5)
+            fontsize=FONT_REASON, color=INK, fontweight="bold",
+            path_effects=halo)))
+    box = VPacker(children=lines, align="center", pad=0, sep=1.0)
     geodetic = DATA_TRANSFORM._as_mpl_transform(ax)
     arrow = None
     if xy_point is not None:
-        arrow = dict(arrowstyle="-", color=INK, linewidth=0.6, shrinkA=2,
+        arrow = dict(arrowstyle="-", color=INK, linewidth=0.5, shrinkA=2,
                      shrinkB=0)
     ax.add_artist(AnnotationBbox(
         box, xy=xy_point if xy_point is not None else xy_label,
@@ -325,11 +346,11 @@ def main():
     bathy_x, bathy_y, shelf, slope, south_radius = load_bathymetry()
     vmax = float(np.percentile(share.compressed(), COLOR_PERCENTILE))
 
-    fig = plt.figure(dpi=300)
-    ax = fig.add_axes([0.02, 0.105, 0.96, 0.715], projection=PROJECTION)
+    fig = plt.figure(dpi=DPI)
+    ax = fig.add_axes(MAP_BOX, projection=PROJECTION, anchor="NW")
     ax.set_extent(EXTENT, crs=DATA_TRANSFORM)
     ax.spines["geo"].set_edgecolor(FRAME)
-    ax.spines["geo"].set_linewidth(0.6)
+    ax.spines["geo"].set_linewidth(0.5)
 
     # Three shades of grey: the shelf and the slope under the recruits, the
     # land above them, so that the islands stay visible where the recruits
@@ -345,7 +366,7 @@ def main():
     # The slope again, as a thin outline above the recruits: it keeps the
     # relief readable where the colours are opaque.
     ax.contour(bathy_x, bathy_y, slope, levels=[0.5], colors=[SLOPE],
-               linewidths=0.3, zorder=2.2)
+               linewidths=0.25, zorder=2.2)
 
     ax.add_feature(cfeature.NaturalEarthFeature("physical", "land", "50m"),
                    facecolor=LAND, edgecolor=LAND, linewidth=0.2, zorder=2.5)
@@ -353,10 +374,10 @@ def main():
     ccamlr = gpd.read_file(SHAPEFILE)
     ccamlr = ccamlr[ccamlr[SHAPE_FIELD].isin(SUBAREA_CODES)]
     ax.add_geometries([region_borders(ccamlr)], crs=DATA_TRANSFORM,
-                      facecolor="none", edgecolor=SUBAREA, linewidth=0.5,
+                      facecolor="none", edgecolor=SUBAREA, linewidth=0.45,
                       zorder=3)
     ax.add_geometries([split_486(ccamlr)], crs=DATA_TRANSFORM,
-                      facecolor="none", edgecolor=SUBAREA, linewidth=0.5,
+                      facecolor="none", edgecolor=SUBAREA, linewidth=0.45,
                       zorder=3)
 
     for subarea, name, reason, xy_label, xy_point in REGION_LABELS:
@@ -364,45 +385,53 @@ def main():
                      xy_label, xy_point)
 
     # Title and the two readings of the map.
-    fig.text(0.02, 0.955,
+    left = MAP_BOX[0]
+    fig.text(left, 0.948,
              "Krill larvae ready for winter: where they come from, "
              "where they meet the ice",
-             fontsize=11.5, fontweight="bold", color=INK, ha="left",
+             fontsize=FONT_TITLE, fontweight="bold", color=INK, ha="left",
              va="center")
-    lead_and_text(fig, 0.02, 0.895, "Numbers: where they come from.",
+    lead_and_text(fig, left, 0.866, "Numbers: where they come from.",
                   "Share of the eggs spawned in each region that give a larva "
-                  "ready for winter.", 8.5)
-    lead_and_text(fig, 0.02, 0.853, "Colour: where they meet the ice.",
+                  "ready for winter.", FONT_TEXT)
+    lead_and_text(fig, left, 0.806, "Colour: where they meet the ice.",
                   f"{100 * off_share:.0f}% of them are then over deep water, "
-                  f"off the slope where eggs are spawned.", 8.5)
+                  f"off the slope where eggs are spawned.", FONT_TEXT)
 
-    # Colour bar without numbers, keys of the outlines and period.
-    cax = fig.add_axes([0.068, 0.048, 0.15, 0.022])
+    # Key, in a column to the right of the map and centred on its height:
+    # the colour bar without numbers, the three greys, the region borders
+    # and the period. The offsets are fractions of the figure height.
+    fig.canvas.draw()
+    box = ax.get_position()
+    mid = box.y0 + box.height / 2
+
+    def key_text(dy, text, x=KEY_X, ha="left", va="center"):
+        fig.text(x, mid + dy, text, fontsize=FONT_KEY, color=INK_2, ha=ha,
+                 va=va, linespacing=1.2)
+
+    key_text(0.272, "Larvae ready for winter")
+    cax = fig.add_axes([KEY_X, mid + 0.192, KEY_WIDTH * 0.86, 0.036])
     cbar = fig.colorbar(mesh, cax=cax, orientation="horizontal", extend="max")
     cbar.outline.set_linewidth(0.4)
     cbar.outline.set_edgecolor(FRAME)
     cbar.set_ticks([])
-    fig.text(0.061, 0.059, "fewer", fontsize=7.5, color=INK_2, ha="right",
-             va="center")
-    fig.text(0.232, 0.059, "more larvae", fontsize=7.5, color=INK_2,
-             ha="left", va="center")
+    key_text(0.140, "fewer", va="baseline")
+    key_text(0.140, "more", x=KEY_X + KEY_WIDTH, ha="right", va="baseline")
     fig.legend(
         handles=[Patch(facecolor=SLOPE, edgecolor="none"),
                  Patch(facecolor=SHELF, edgecolor="none"),
                  Patch(facecolor=LAND, edgecolor="none"),
                  Line2D([0], [0], color=SUBAREA, linewidth=1.0)],
-        labels=["Slope, the assumed spawning zone (1000-2000 m)", "Shelf",
-                "Land", "Regions"],
-        loc="center left", bbox_to_anchor=(0.325, 0.059), frameon=False,
-        fontsize=7.5, labelcolor=INK_2, handlelength=1.3, handleheight=0.8,
-        ncols=4, columnspacing=1.3, handletextpad=0.5, borderpad=0,
+        labels=["Slope, the assumed\nspawning zone\n(1000-2000 m)",
+                "Shelf (0-1000 m)", "Land", "Regions"],
+        loc="upper left", bbox_to_anchor=(KEY_X, mid + 0.075), frameon=False,
+        fontsize=FONT_KEY, labelcolor=INK_2, handlelength=1.1,
+        handleheight=0.8, labelspacing=0.75, handletextpad=0.6, borderpad=0,
         borderaxespad=0,
     )
-    ax.text(0.012, 0.03, "32 seasons, 1993/94 to 2024/25", fontsize=7.5,
-            color=INK_2, ha="left", va="center", transform=ax.transAxes,
-            zorder=6)
+    key_text(-0.250, "32 seasons,\n1993/94 to 2024/25")
 
-    fig.savefig(OUTPUT, dpi=300, facecolor="white")
+    fig.savefig(OUTPUT, dpi=DPI, facecolor="white")
     print(f"Written {OUTPUT}")
 
 
