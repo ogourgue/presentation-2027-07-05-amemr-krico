@@ -23,6 +23,8 @@ cd <folder>
 python plot.py
 ```
 
+`shared/` holds files used by several figures.
+
 `FA_recruit_map/data/aggregated.nc` and the rendered figure are not committed yet: they are built from version 3.0.0 of the dataset (see below).
 
 ## Re-running the aggregation
@@ -44,3 +46,4 @@ python plot.py
 | Folder | Use | Source |
 |---|---|---|
 | `FA_recruit_map` | Image submitted with the abstract | Recruitment and off-shelf panels of `F5_destination_maps` in [krico-paper1](https://github.com/ogourgue/krico-paper1) @ `d883793`, merged into one map |
+| `shared/ccamlr-data` | Region outlines and assignment of particles to regions | CCAMLR Statistical Areas shapefile, as in [krico-paper1](https://github.com/ogourgue/krico-paper1) @ `d883793` |
