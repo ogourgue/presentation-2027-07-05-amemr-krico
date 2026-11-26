@@ -4,8 +4,6 @@ Figures and scripts for a contribution on the first paper of the KRICO project (
 
 Author: Olivier Gourgue (RBINS)
 
-Abstract: [AMEMR 2027 abstract KRICO](https://docs.google.com/document/d/17gDisDJ9yEJo6pr7_cLbUosD3myWUPuhntwLWtXJMV0/edit?usp=sharing) (Google Docs)
-
 For now the repository holds one figure, the image submitted with the abstract. It is adapted from [krico-paper1](https://github.com/ogourgue/krico-paper1) and shows the work as submitted; later versions of the paper may differ.
 
 Related repositories:
